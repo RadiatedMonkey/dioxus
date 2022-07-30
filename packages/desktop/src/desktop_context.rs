@@ -177,7 +177,7 @@ pub(super) fn handler(
     let window = webview.window();
 
     match user_event {
-        Update => desktop.try_load_ready_webviews(),
+        Update => { desktop.try_load_ready_webviews() },
         CloseWindow => *control_flow = ControlFlow::Exit,
         DragWindow => {
             // if the drag_window has any errors, we don't do anything

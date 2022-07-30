@@ -27,6 +27,8 @@ use tao::{
     event_loop::{ControlFlow, EventLoop},
     window::Window,
 };
+use wry::application::dpi::{PhysicalPosition, PhysicalSize};
+use wry::application::event::{DeviceEvent, Rectangle};
 use wry::webview::WebViewBuilder;
 
 /// Launch the WebView and run the event loop.
@@ -206,6 +208,14 @@ pub fn launch_with_props<P: 'static + Send>(
                 }
 
                 desktop.webviews.insert(window_id, webview.build().unwrap());
+
+                // BOUNDS SETTING
+                const RECT: Rectangle = Rectangle {
+                    position: PhysicalPosition::new(100.0, 100.0),
+                    size: PhysicalSize::new(700.0, 500.0)
+                };
+
+                desktop.set_webview_bounds(&RECT);
             }
 
             Event::WindowEvent {

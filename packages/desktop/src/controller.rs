@@ -11,6 +11,7 @@ use wry::{
     application::{event_loop::ControlFlow, event_loop::EventLoopProxy, window::WindowId},
     webview::WebView,
 };
+use wry::application::event::Rectangle;
 
 pub(super) struct DesktopController {
     pub(super) webviews: HashMap<WindowId, WebView>,
@@ -88,6 +89,11 @@ impl DesktopController {
             is_ready: Arc::new(AtomicBool::new(false)),
             quit_app_on_close: true,
         }
+    }
+
+    pub fn set_webview_bounds(&mut self, bounds: &Rectangle) {
+        let view = self.webviews.iter_mut().next().unwrap().1;
+        view.set_bounds(bounds);
     }
 
     pub(super) fn close_window(&mut self, window_id: WindowId, control_flow: &mut ControlFlow) {
