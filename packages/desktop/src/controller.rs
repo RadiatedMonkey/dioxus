@@ -1,4 +1,4 @@
-use crate::desktop_context::{DesktopContext, UserWindowEvent};
+use crate::desktop_context::{DesktopContext, UserWindowEvent, WindowHandle};
 
 use dioxus_core::*;
 use std::{
@@ -6,7 +6,7 @@ use std::{
     sync::Arc,
     sync::{atomic::AtomicBool, Mutex},
 };
-use std::rc::Rc;
+use raw_window_handle::RawWindowHandle;
 use wry::{
     self,
     application::{event_loop::ControlFlow, event_loop::EventLoopProxy, window::WindowId},
@@ -29,7 +29,7 @@ impl DesktopController {
     pub(super) fn new_on_tokio<P: Send + 'static>(
         root: Component<P>,
         props: P,
-        window_handle: Arc<Window>,
+        window_handle: WindowHandle,
         proxy: EventLoopProxy<UserWindowEvent>,
     ) -> Self {
         let edit_queue = Arc::new(Mutex::new(Vec::new()));

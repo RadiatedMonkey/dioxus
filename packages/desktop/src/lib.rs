@@ -14,10 +14,13 @@ mod protocol;
 
 use std::rc::Rc;
 use std::sync::Arc;
+use raw_window_handle::{HasRawDisplayHandle, HasRawWindowHandle};
 use desktop_context::UserWindowEvent;
 pub use desktop_context::{use_eval, use_window, DesktopContext};
 pub use wry;
 pub use wry::application as tao;
+
+pub use raw_window_handle;
 
 use crate::events::trigger_from_serialized;
 use cfg::DesktopConfig;
@@ -32,6 +35,7 @@ use tao::{
 use wry::application::dpi::{PhysicalPosition, PhysicalSize};
 use wry::application::event::{DeviceEvent, Rectangle};
 use wry::webview::WebViewBuilder;
+use crate::desktop_context::WindowHandle;
 
 /// Launch the WebView and run the event loop.
 ///
@@ -118,7 +122,7 @@ pub fn launch_with_props<P: 'static + Send>(
     let window = Arc::new(builder.build(&event_loop).unwrap());
 
     let mut desktop: DesktopController = DesktopController::new_on_tokio(
-        root, props, window.clone(), proxy.clone()
+        root, props, WindowHandle(window.raw_window_handle()), proxy.clone()
     );
 
     event_loop.run(move |window_event, event_loop, control_flow| {

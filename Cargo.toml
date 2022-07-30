@@ -38,7 +38,7 @@ homepage = "https://dioxuslabs.com"
 documentation = "https://dioxuslabs.com"
 keywords = ["dom", "ui", "gui", "react", "wasm"]
 rust-version = "1.60.0"
-
+build = "build.rs"
 
 [dev-dependencies]
 dioxus = { path = "./packages/dioxus" }
@@ -60,3 +60,7 @@ reqwest = { version = "0.11.9", features = ["json"] }
 fern = { version = "0.6.0", features = ["colored"] }
 thiserror = "1.0.30"
 env_logger = "0.9.0"
+glutin = "0.28.0"
+
+[build-dependencies]
+gl_generator = "0.14.0"

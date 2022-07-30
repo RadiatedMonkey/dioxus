@@ -1,8 +1,10 @@
 use std::rc::Rc;
 use std::sync::Arc;
+use raw_window_handle::{RawDisplayHandle, RawWindowHandle};
+use wry::application::event::Rectangle;
 use crate::controller::DesktopController;
 use dioxus_core::ScopeState;
-use wry::application::event_loop::ControlFlow;
+use wry::application::event_loop::{ControlFlow, EventLoopWindowTarget};
 use wry::application::event_loop::EventLoopProxy;
 use wry::application::window::{Fullscreen as WryFullscreen, Window};
 
@@ -16,6 +18,12 @@ pub fn use_window(cx: &ScopeState) -> &DesktopContext {
         .as_ref()
         .unwrap()
 }
+
+/// Wrapper around RawWindowHandle to make it Send
+#[derive(Copy, Clone)]
+pub struct WindowHandle(pub RawWindowHandle);
+
+unsafe impl Send for WindowHandle {}
 
 /// An imperative interface to the current window.
 ///
@@ -37,16 +45,16 @@ pub struct DesktopContext {
     /// Handle to the underlying window
     /// Storing the window handle is fine because Dioxus only supports a single window right now
     /// This will probably have to be changed in the future
-    pub window: Arc<Window>
+    pub window: WindowHandle
 }
 
 impl DesktopContext {
-    pub(crate) fn new(proxy: ProxyType, window: Arc<Window>) -> Self {
+    pub(crate) fn new(proxy: ProxyType, window: WindowHandle) -> Self {
         Self { proxy, window }
     }
 
     /// trigger the drag-window event
-    ///
+    ///-
     /// Moves the window with the left mouse button until the button is released.
     ///
     /// you need use it in `onmousedown` event:
@@ -127,6 +135,11 @@ impl DesktopContext {
         let _ = self.proxy.send_event(SetZoomLevel(scale_factor));
     }
 
+    /// set webview bounds
+    pub fn set_bounds(&self, bounds: Rectangle) {
+        let _ = self.proxy.send_event(SetBounds(bounds));
+    }
+
     /// launch print modal
     pub fn print(&self) {
         let _ = self.proxy.send_event(Print);
@@ -166,6 +179,7 @@ pub enum UserWindowEvent {
     SetDecorations(bool),
 
     SetZoomLevel(f64),
+    SetBounds(Rectangle),
 
     Print,
     DevTool,
@@ -212,6 +226,7 @@ pub(super) fn handler(
         SetDecorations(state) => window.set_decorations(state),
 
         SetZoomLevel(scale_factor) => webview.zoom(scale_factor),
+        SetBounds(bounds) => webview.set_bounds(&bounds),
 
         Print => {
             if let Err(e) = webview.print() {
