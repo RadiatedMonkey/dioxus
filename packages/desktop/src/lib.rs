@@ -12,6 +12,8 @@ mod events;
 mod hot_reload;
 mod protocol;
 
+use std::rc::Rc;
+use std::sync::Arc;
 use desktop_context::UserWindowEvent;
 pub use desktop_context::{use_eval, use_window, DesktopContext};
 pub use wry;
@@ -110,18 +112,20 @@ pub fn launch_with_props<P: 'static + Send>(
     builder(&mut cfg);
 
     let event_loop = EventLoop::with_user_event();
-
-    let mut desktop = DesktopController::new_on_tokio(root, props, event_loop.create_proxy());
     let proxy = event_loop.create_proxy();
+
+    let builder = cfg.window.clone();
+    let window = Arc::new(builder.build(&event_loop).unwrap());
+
+    let mut desktop: DesktopController = DesktopController::new_on_tokio(
+        root, props, window.clone(), proxy.clone()
+    );
 
     event_loop.run(move |window_event, event_loop, control_flow| {
         *control_flow = ControlFlow::Wait;
 
         match window_event {
             Event::NewEvents(StartCause::Init) => {
-                let builder = cfg.window.clone();
-
-                let window = builder.build(event_loop).unwrap();
                 let window_id = window.id();
 
                 let (is_ready, sender) = (desktop.is_ready.clone(), desktop.sender.clone());
@@ -133,7 +137,7 @@ pub fn launch_with_props<P: 'static + Send>(
                 let resource_dir = cfg.resource_dir.clone();
                 let index_file = cfg.custom_index.clone();
 
-                let mut webview = WebViewBuilder::new(window)
+                let mut webview = WebViewBuilder::new(window.clone())
                     .unwrap()
                     .with_transparent(cfg.window.window.transparent)
                     .with_url("dioxus://index.html/")

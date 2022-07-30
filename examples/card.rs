@@ -2,13 +2,7 @@
 //!
 //! This examples shows a simple graphics application with Dioxus UI rendered on top of it
 
-#![windows_subsystem = "windows"]
-
-use std::rc::Rc;
 use dioxus::prelude::*;
-use dioxus_desktop::tao::dpi::PhysicalSize;
-use dioxus_desktop::tao::event_loop::EventLoop;
-use dioxus_desktop::tao::window::WindowBuilder;
 
 fn main() {
     dioxus_desktop::launch_cfg(app, |cfg| {
@@ -16,7 +10,7 @@ fn main() {
             .with_window(|w|
                 w
                     .with_title("3D rendering demo")
-                    .with_decorations(false)
+                    .with_decorations(true)
             )
             .with_custom_head(
                 "<script src=\"https://cdn.tailwindcss.com\"></script>".to_string()
@@ -25,9 +19,7 @@ fn main() {
 }
 
 fn app(cx: Scope) -> Element {
-    cx.use_hook(|| {
-        cx.provide_context(Rc::new(GraphicsState::new()));
-    });
+
 
     cx.render(rsx! {
         Child {}

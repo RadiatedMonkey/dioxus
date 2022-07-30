@@ -6,12 +6,14 @@ use std::{
     sync::Arc,
     sync::{atomic::AtomicBool, Mutex},
 };
+use std::rc::Rc;
 use wry::{
     self,
     application::{event_loop::ControlFlow, event_loop::EventLoopProxy, window::WindowId},
     webview::WebView,
 };
 use wry::application::event::Rectangle;
+use wry::application::window::Window;
 
 pub(super) struct DesktopController {
     pub(super) webviews: HashMap<WindowId, WebView>,
@@ -27,6 +29,7 @@ impl DesktopController {
     pub(super) fn new_on_tokio<P: Send + 'static>(
         root: Component<P>,
         props: P,
+        window_handle: Arc<Window>,
         proxy: EventLoopProxy<UserWindowEvent>,
     ) -> Self {
         let edit_queue = Arc::new(Mutex::new(Vec::new()));
@@ -47,7 +50,9 @@ impl DesktopController {
                 let mut dom =
                     VirtualDom::new_with_props_and_scheduler(root, props, (sender, receiver));
 
-                let window_context = DesktopContext::new(desktop_context_proxy);
+                let window_context = DesktopContext::new(
+                    desktop_context_proxy, window_handle,
+                );
 
                 dom.base_scope().provide_context(window_context);
 

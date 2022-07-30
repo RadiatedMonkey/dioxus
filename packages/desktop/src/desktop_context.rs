@@ -1,8 +1,10 @@
+use std::rc::Rc;
+use std::sync::Arc;
 use crate::controller::DesktopController;
 use dioxus_core::ScopeState;
 use wry::application::event_loop::ControlFlow;
 use wry::application::event_loop::EventLoopProxy;
-use wry::application::window::Fullscreen as WryFullscreen;
+use wry::application::window::{Fullscreen as WryFullscreen, Window};
 
 use UserWindowEvent::*;
 
@@ -31,11 +33,16 @@ pub fn use_window(cx: &ScopeState) -> &DesktopContext {
 pub struct DesktopContext {
     /// The wry/tao proxy to the current window
     pub proxy: ProxyType,
+
+    /// Handle to the underlying window
+    /// Storing the window handle is fine because Dioxus only supports a single window right now
+    /// This will probably have to be changed in the future
+    pub window: Arc<Window>
 }
 
 impl DesktopContext {
-    pub(crate) fn new(proxy: ProxyType) -> Self {
-        Self { proxy }
+    pub(crate) fn new(proxy: ProxyType, window: Arc<Window>) -> Self {
+        Self { proxy, window }
     }
 
     /// trigger the drag-window event
