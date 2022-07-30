@@ -13,7 +13,24 @@ use wry::{
 
 pub(crate) type DynEventHandlerFn = dyn Fn(&mut EventLoop<()>, &mut WebView);
 
+// #[derive(Clone)]
+// enum WindowValue {
+//     Builder(WindowBuilder),
+//     Window(Window)
+// }
+
 pub struct DesktopConfig {
+    // pub(crate) event_loop: Option<EventLoop<()>>,
+    // pub(crate) window: Option<WindowValue>,
+    // pub(crate) file_drop_handler: Option<Box<dyn Fn(&Window, FileDropEvent) -> bool>>,
+    // pub(crate) protocols: Vec<WryProtocol>,
+    // pub(crate) pre_rendered: Option<String>,
+    // pub(crate) event_handler: Option<Box<DynEventHandlerFn>>,
+    // pub(crate) disable_context_menu: bool,
+    // pub(crate) resource_dir: Option<PathBuf>,
+    // pub(crate) custom_head: Option<String>,
+    // pub(crate) custom_index: Option<String>,
+
     pub(crate) window: WindowBuilder,
     pub(crate) file_drop_handler: Option<Box<dyn Fn(&Window, FileDropEvent) -> bool>>,
     pub(crate) protocols: Vec<WryProtocol>,
@@ -37,6 +54,17 @@ impl DesktopConfig {
         let window = WindowBuilder::new().with_title("Dioxus app");
 
         Self {
+            // event_loop: None,
+            // window: None,
+            // protocols: Vec::new(),
+            // file_drop_handler: None,
+            // pre_rendered: None,
+            // event_handler: None,
+            // disable_context_menu: !cfg!(debug_assertions),
+            // resource_dir: None,
+            // custom_head: None,
+            // custom_index: None,
+
             event_handler: None,
             window,
             protocols: Vec::new(),
@@ -67,6 +95,17 @@ impl DesktopConfig {
         self
     }
 
+    // pub fn with_window(
+    //     &mut self,
+    //     configure: impl FnOnce(WindowBuilder) -> WindowBuilder,
+    // ) -> &mut Self {
+    //     let mut builder = WindowBuilder::default().with_title("Dioxus App");
+    //     builder = configure(builder);
+    //
+    //     self.window = Some(WindowValue::Builder(builder));
+    //     self
+    // }
+
     pub fn with_window(
         &mut self,
         configure: impl FnOnce(WindowBuilder) -> WindowBuilder,
@@ -79,6 +118,16 @@ impl DesktopConfig {
         std::mem::swap(&mut self.window, &mut builder);
         self
     }
+
+    // pub fn with_existing_window(
+    //     &mut self,
+    //     event_loop: EventLoop<()>,
+    //     window: Window
+    // ) -> &mut Self {
+    //     self.event_loop = Some(event_loop);
+    //     self.window = Some(WindowValue::Window(window));
+    //     self
+    // }
 
     pub fn with_event_handler(
         &mut self,
